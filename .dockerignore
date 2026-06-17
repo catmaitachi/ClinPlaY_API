@@ -1,0 +1,28 @@
+# O .dockerignore deve ficar na RAIZ do repositório (build context),
+# não dentro de docker/. O Docker só o lê a partir do build context.
+
+# Build do Maven — gerado dentro do container, não enviar para a imagem
+target/
+
+# Variáveis de ambiente e segredos — NUNCA entram na imagem
+.env
+.env.*
+src/main/resources/firebase-credentials.json
+
+# Logs locais
+*.log
+logs/
+
+# IDEs e sistema operacional
+.idea/
+.vscode/
+*.iml
+*.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Docker — evita enviar os próprios arquivos de configuração
+docker/
