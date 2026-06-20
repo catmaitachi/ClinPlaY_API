@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -14,6 +16,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -57,8 +60,19 @@ public class SecurityConfig {
                 auth
                     .requestMatchers(ENDPOINTS_PUBLICOS)
                     .permitAll()
+                    // Cadastro inicial: autenticado pelo cookie de setup, não por Bearer.
+                    // Apenas o POST destes recursos é liberado; GET/PUT/DELETE seguem protegidos.
+                    .requestMatchers(HttpMethod.POST, "/paciente", "/profissional")
+                    .permitAll()
                     .anyRequest()
                     .authenticated()
+            )
+            // Para XHR sem autenticação, responde 401 em vez de redirecionar para o
+            // fluxo OAuth do Google (o que causava o erro de CORS no accounts.google.com).
+            .exceptionHandling(e ->
+                e.authenticationEntryPoint(
+                    new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)
+                )
             )
             .oauth2Login(oauth2 ->
                 oauth2

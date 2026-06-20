@@ -175,7 +175,7 @@ public class JwtService {
         String nome = "ClinPlay";
 
         return ResponseCookie.from(nome, token)
-            .maxAge(extrairExpiracao(token))
+            .maxAge((extrairExpiracao(token) - System.currentTimeMillis()) / 1000)
             .sameSite("None")
             .httpOnly(true)
             .secure(true)
