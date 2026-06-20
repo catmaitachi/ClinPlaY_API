@@ -29,7 +29,7 @@ public class SecurityConfig {
 
     private static final String[] ENDPOINTS_PUBLICOS = {
         "/oauth2/**",
-        "/oauth/setup",
+        "/auth/setup",
         "/auth/login",
         "/auth/fcm-token",
         "/auth/refresh",

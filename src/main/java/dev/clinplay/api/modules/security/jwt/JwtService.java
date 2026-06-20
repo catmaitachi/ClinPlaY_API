@@ -176,9 +176,9 @@ public class JwtService {
 
         return ResponseCookie.from(nome, token)
             .maxAge(extrairExpiracao(token))
-            .sameSite("Lax")
+            .sameSite("None")
             .httpOnly(true)
-            .secure(false)
+            .secure(true)
             .path("/")
             .build();
 

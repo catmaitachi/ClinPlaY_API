@@ -98,7 +98,8 @@ public class AuthController {
                 .maxAge(0)
                 .path("/")
                 .httpOnly(true)
-                .secure(false)
+                .sameSite("None")
+                .secure(true)
                 .build();
 
             HttpHeaders headers = new HttpHeaders();
