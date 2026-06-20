@@ -7,12 +7,12 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -88,9 +88,11 @@ public class PacienteController {
     }
 
     @PostMapping
-    public ResponseEntity<?> cadastrar(@CookieValue(name = "ClinPlay") String token, @Valid @RequestBody CadastroPaciente dto, HttpServletRequest request) {
+    public ResponseEntity<?> cadastrar(@RequestHeader(name = "Authorization", required = false) String authHeader, @Valid @RequestBody CadastroPaciente dto, HttpServletRequest request) {
 
         try {
+
+            String token = jwtService.extrairBearer(authHeader);
 
             if ( token == null || !jwtService.isSetupToken(token) || !jwtService.ehValido(token) ) return ResponseEntity.badRequest().body("Token de setup inválido ou expirado.");
 

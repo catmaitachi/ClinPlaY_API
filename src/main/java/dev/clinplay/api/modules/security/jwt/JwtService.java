@@ -95,6 +95,14 @@ public class JwtService {
 
     }
 
+    public String extrairBearer(String authHeader) {
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+
+        return authHeader.substring(7);
+
+    }
+
     public boolean isAccessToken(String token) {
 
         return "access".equals(getClaim(token, c -> c.get("type", String.class)));

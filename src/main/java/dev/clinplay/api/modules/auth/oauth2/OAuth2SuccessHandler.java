@@ -54,10 +54,10 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             Map<String, Object> claims = Map.of( "name", nome, "email", email, "picture", avatar );
 
             String setupToken = jwtService.gerarSetupToken(l, claims);
-            ResponseCookie cookie = jwtService.criarCookie(setupToken);
 
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            url = UriComponentsBuilder.fromUriString(frontUrl + "/oauth/setup").toUriString();
+            // O setup token vai na URL (e nao em cookie), pois cookies cross-site
+            // entre o front e a API nao sao persistidos de forma confiavel.
+            url = UriComponentsBuilder.fromUriString(frontUrl + "/oauth/setup").queryParam("setup_token", setupToken).toUriString();
 
         } else {
 

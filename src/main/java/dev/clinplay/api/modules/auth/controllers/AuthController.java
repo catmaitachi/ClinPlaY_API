@@ -32,9 +32,11 @@ public class AuthController {
     private final SessaoService sessaoService;
     
     @GetMapping("/setup")
-    public ResponseEntity<?> setup(@CookieValue(name = "ClinPlay") String token) {
+    public ResponseEntity<?> setup(@RequestHeader(name = "Authorization", required = false) String authHeader) {
 
         try {
+
+            String token = jwtService.extrairBearer(authHeader);
 
             if ( token == null || !jwtService.isSetupToken(token) || !jwtService.ehValido(token) ) return ResponseEntity.badRequest().body("Token de setup inválido ou expirado.");
 
