@@ -11,7 +11,6 @@ import java.util.function.Function;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 
 import dev.clinplay.api.modules.accounts.models.Usuario;
@@ -178,19 +177,4 @@ public class JwtService {
 
     }
 
-    public ResponseCookie criarCookie(String token) {
-
-        String nome = "ClinPlay";
-
-        return ResponseCookie.from(nome, token)
-            .maxAge((extrairExpiracao(token) - System.currentTimeMillis()) / 1000)
-            .sameSite("None")
-            .httpOnly(true)
-            .secure(true)
-            .path("/")
-            .build();
-
-    }
-
-    
 }

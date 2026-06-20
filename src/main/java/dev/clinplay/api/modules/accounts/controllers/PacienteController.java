@@ -1,9 +1,8 @@
 package dev.clinplay.api.modules.accounts.controllers;
 
+import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -71,17 +70,7 @@ public class PacienteController {
             service.inativar(id);
             sessaoService.encerrarTodas(id);
 
-            ResponseCookie cookieLimpo = ResponseCookie.from("ClinPlay", "")
-                .maxAge(0)
-                .path("/")
-                .httpOnly(true)
-                .secure(false)
-                .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.SET_COOKIE, cookieLimpo.toString());
-
-            return ResponseEntity.noContent().headers(headers).build();
+            return ResponseEntity.noContent().build();
 
         } catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível inativar a conta: " + e.getMessage()); }
 
@@ -101,15 +90,8 @@ public class PacienteController {
             String refresh = jwtService.gerarRefreshToken(p);
             Sessao s = sessaoService.iniciar(p, refresh, new Origem(request));
             String access = jwtService.gerarAcessToken(s);
-            ResponseCookie cookie = jwtService.criarCookie(refresh);
 
-            HttpHeaders headers = new HttpHeaders();
-
-            headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-
-            return ResponseEntity.ok()
-                .headers(headers)
-                .body(access);
+            return ResponseEntity.ok(Map.of("access", access, "refresh", refresh));
 
         } catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível cadastrar o paciente: " + e.getMessage()); }
 

@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -64,10 +62,13 @@ public class OAuth2SuccessHandler implements AuthenticationSuccessHandler {
             String refreshToken = jwtService.gerarRefreshToken(l.getUsuario());
             Sessao s = sessaoService.iniciar(l.getUsuario(), refreshToken, new Origem(request));
             String accessToken = jwtService.gerarAcessToken(s);
-            ResponseCookie cookie = jwtService.criarCookie(refreshToken);
 
-            response.addHeader(HttpHeaders.SET_COOKIE, cookie.toString());
-            url = UriComponentsBuilder.fromUriString(frontUrl + "/oauth/callback").queryParam("access_token", accessToken).toUriString();
+            // Tokens vão no fragment (#): ao contrário da query string, ele não é
+            // enviado ao servidor nem registrado em logs/Referer. O refresh token
+            // é de longa duração, então essa proteção importa.
+            url = UriComponentsBuilder.fromUriString(frontUrl + "/oauth/callback")
+                .fragment("access_token=" + accessToken + "&refresh_token=" + refreshToken)
+                .toUriString();
 
         }
 

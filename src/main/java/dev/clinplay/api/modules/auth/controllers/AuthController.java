@@ -12,10 +12,7 @@ import lombok.RequiredArgsConstructor;
 import java.util.Map;
 import java.util.UUID;
 
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -47,23 +44,17 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(@CookieValue(name = "ClinPlay") String token, HttpServletRequest request) {
+    public ResponseEntity<?> refresh(@RequestHeader(name = "Authorization", required = false) String authHeader, HttpServletRequest request) {
 
         try {
+
+            String token = jwtService.extrairBearer(authHeader);
 
             if ( token == null || !jwtService.isRefreshToken(token) || !jwtService.ehValido(token) ) return ResponseEntity.badRequest().body("Token de refresh inválido ou expirado.");
 
             Map<String, String> tokens = sessaoService.refresh(token, new Origem(request));
 
-            ResponseCookie cookie = jwtService.criarCookie(tokens.get("refresh"));
-
-            HttpHeaders headers = new HttpHeaders();
-
-            headers.add(HttpHeaders.SET_COOKIE, cookie.toString());
-
-            return ResponseEntity.ok()
-                .headers(headers)
-                .body(tokens.get("access"));
+            return ResponseEntity.ok(tokens);
 
         } catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível realizar o refresh do token: " + e.getMessage()); }
 
@@ -85,29 +76,17 @@ public class AuthController {
     }
 
     @DeleteMapping("/logout")
-    public ResponseEntity<?> logout(@RequestHeader("Authorization") String authHeader) {
+    public ResponseEntity<?> logout(@RequestHeader(name = "Authorization", required = false) String authHeader) {
 
         try {
 
-            if (!authHeader.startsWith("Bearer ")) return ResponseEntity.badRequest().body("Token de acesso não fornecido.");
+            String token = jwtService.extrairBearer(authHeader);
 
+            if (token == null) return ResponseEntity.badRequest().body("Token de acesso não fornecido.");
 
-            UUID sessaoId = jwtService.extrairSessao(authHeader.substring(7));
-            
-            sessaoService.encerrar(sessaoId);
+            sessaoService.encerrar(jwtService.extrairSessao(token));
 
-            ResponseCookie cookieLimpo = ResponseCookie.from("ClinPlay", "")
-                .maxAge(0)
-                .path("/")
-                .httpOnly(true)
-                .sameSite("None")
-                .secure(true)
-                .build();
-
-            HttpHeaders headers = new HttpHeaders();
-            headers.add(HttpHeaders.SET_COOKIE, cookieLimpo.toString());
-
-            return ResponseEntity.noContent().headers(headers).build();
+            return ResponseEntity.noContent().build();
 
         } catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível encerrar a sessão: " + e.getMessage()); }
 
