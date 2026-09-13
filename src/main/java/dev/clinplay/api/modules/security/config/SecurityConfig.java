@@ -27,8 +27,18 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    @Value("${url.frontend}")
-    private String frontUrl;
+    /**
+     * Origens aceitas em CORS. Precisa ser uma lista porque o mesmo app é
+     * servido em mais de um endereço (domínio próprio, com e sem `www`, e a
+     * URL da Vercel). Antes aqui só cabia o valor de `url.frontend`, então
+     * qualquer acesso pelo domínio próprio tomava 403 em toda chamada.
+     *
+     * São valores explícitos de propósito. Curinga (`*`) ou reflexão do
+     * header `Origin` junto com `allowCredentials(true)` permitiria que
+     * qualquer site lesse respostas autenticadas destes usuários.
+     */
+    @Value("${url.origens}")
+    private List<String> origensPermitidas;
 
     private static final String[] ENDPOINTS_PUBLICOS = {
         "/oauth2/**",
@@ -40,6 +50,9 @@ public class SecurityConfig {
         "/swagger-ui/**",
         "/v3/api-docs/**",
         "/ws/**",
+        // Ping de disponibilidade (ver HealthController): mantém a instância
+        // do Render acordada sem depender do Swagger continuar exposto.
+        "/health",
     };
 
     private final JwtAuthFilter jwtAuthFilter;
@@ -92,7 +105,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(frontUrl));
+        config.setAllowedOrigins(origensPermitidas);
         config.setAllowedMethods(
             List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
         );
