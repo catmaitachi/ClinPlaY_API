@@ -58,3 +58,8 @@ logs/
 
 # AI
 .claude/
+agent/CONTEXT.md
+agent/TASK.md
+agent/ERRO.md
+agent/gate.log
+agent/BLOCKED.md
