@@ -1,7 +1,11 @@
 package dev.clinplay.api.modules.treatment.services;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
+
+import org.springframework.data.domain.Limit;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -15,8 +19,10 @@ import dev.clinplay.api.modules.clinics.repositories.ClinicaRepository;
 import dev.clinplay.api.modules.clinics.repositories.ClinPacienteRepository;
 import dev.clinplay.api.modules.clinics.repositories.ClinProfissionalRepository;
 import dev.clinplay.api.modules.treatment.dtos.CadastroTratamento;
+import dev.clinplay.api.modules.treatment.dtos.ObterRankingPaciente;
 import dev.clinplay.api.modules.treatment.dtos.ObterTratamento;
 import dev.clinplay.api.modules.treatment.models.Tratamento;
+import dev.clinplay.api.modules.treatment.repositories.FeedbackRepository;
 import dev.clinplay.api.modules.treatment.repositories.TratamentoRepository;
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +35,7 @@ public class TratamentoService {
     private final ProfissionalRepository profissionalRepository;
     private final ClinPacienteRepository clinPacienteRepository;
     private final ClinProfissionalRepository clinProfissionalRepository;
+    private final FeedbackRepository feedbackRepository;
 
     @Transactional
     public ObterTratamento criar(UUID profissionalId, UUID clinicaId, CadastroTratamento dto) {
@@ -88,6 +95,25 @@ public class TratamentoService {
 
         tratamento.setFim(LocalDate.now());
         repository.save(tratamento);
+
+    }
+
+    /**
+     * Pacientes do profissional que mais concluíram exercícios na clínica.
+     * `dias` nulo conta desde sempre. O filtro por profissional na query já
+     * garante que ele só vê os próprios pacientes.
+     */
+    @Transactional(readOnly = true)
+    public List<ObterRankingPaciente> ranking(UUID profissionalId, UUID clinicaId, Integer dias) {
+
+        if (dias != null && (dias < 1 || dias > 365))
+            throw new IllegalArgumentException("O período deve ser entre 1 e 365 dias");
+
+        LocalDateTime desde = dias == null
+            ? LocalDateTime.of(2000, 1, 1, 0, 0)
+            : LocalDateTime.now().minusDays(dias);
+
+        return feedbackRepository.ranking(profissionalId, clinicaId, desde, Limit.of(10));
 
     }
 
