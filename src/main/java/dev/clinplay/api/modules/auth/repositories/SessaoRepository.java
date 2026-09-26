@@ -1,5 +1,6 @@
 package dev.clinplay.api.modules.auth.repositories;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -11,6 +12,8 @@ import dev.clinplay.api.modules.auth.models.Sessao;
 public interface SessaoRepository extends JpaRepository<Sessao, UUID> {
 
     Optional<Sessao> findByUsuarioIdAndOrigem(UUID usuarioId, Origem origem);
+
+    List<Sessao> findAllByUsuarioId(UUID usuarioId);
 
     Optional<Sessao> findTopByUsuarioIdAndFcmTokenNotNullOrderByUltimoAcessoDesc(UUID usuarioId);
 
