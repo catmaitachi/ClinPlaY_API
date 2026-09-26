@@ -13,7 +13,7 @@ public interface SessaoRepository extends JpaRepository<Sessao, UUID> {
 
     Optional<Sessao> findByUsuarioIdAndOrigem(UUID usuarioId, Origem origem);
 
-    List<Sessao> findAllByUsuarioId(UUID usuarioId);
+    List<Sessao> findAllByUsuarioIdOrderByUltimoAcessoDesc(UUID usuarioId);
 
     Optional<Sessao> findTopByUsuarioIdAndFcmTokenNotNullOrderByUltimoAcessoDesc(UUID usuarioId);
 

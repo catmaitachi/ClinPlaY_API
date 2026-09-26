@@ -47,7 +47,7 @@ class SessaoServiceTest {
 
         when(repository.findByUsuarioIdAndOrigem(usuarioId, wifi)).thenReturn(java.util.Optional.empty());
         sessao = service.iniciar(usuario, "refresh-original", wifi);
-        when(repository.findAllByUsuarioId(usuarioId)).thenReturn(List.of(sessao));
+        when(repository.findAllByUsuarioIdOrderByUltimoAcessoDesc(usuarioId)).thenReturn(List.of(sessao));
     }
 
     @Test

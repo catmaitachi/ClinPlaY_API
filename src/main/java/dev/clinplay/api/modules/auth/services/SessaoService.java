@@ -59,7 +59,9 @@ public class SessaoService {
 
         String hash = digest(token);
 
-        Sessao s = repository.findAllByUsuarioId(jwtService.extrairSub(token)).stream()
+        // A sessão em uso costuma ser a mais recente: testá-la primeiro poupa
+        // comparações BCrypt, que são lentas de propósito.
+        Sessao s = repository.findAllByUsuarioIdOrderByUltimoAcessoDesc(jwtService.extrairSub(token)).stream()
             .filter(sessao -> sessao.getRefreshTokenHash() != null && encoder.matches(hash, sessao.getRefreshTokenHash()))
             .findFirst()
             .orElseThrow(() -> new IllegalArgumentException("Sessão não encontrada ou refresh token já usado."));
