@@ -67,7 +67,9 @@ public class TratamentoService {
         Tratamento tratamento = repository.findById(tratamentoId)
             .orElseThrow(() -> new IllegalArgumentException("Tratamento não encontrado"));
 
-        if (tratamento.getFim() != null)
+        // `fim` é a data limite de acesso: pode estar no futuro sem que o
+        // tratamento tenha terminado. Só está encerrado se a data já passou.
+        if (tratamento.getFim() != null && tratamento.getFim().isBefore(LocalDate.now()))
             throw new IllegalArgumentException("Este tratamento já foi finalizado");
 
         Clinica clinica = tratamento.getClinica();
