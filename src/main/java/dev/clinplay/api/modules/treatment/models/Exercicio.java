@@ -63,7 +63,8 @@ public class Exercicio {
         @AttributeOverride(name = "tempoInativo",   column = @Column(name = "tempo_inativo_padrao")),
         @AttributeOverride(name = "tempoPrincipal", column = @Column(name = "tempo_principal_padrao")),
         @AttributeOverride(name = "tempoSecundario",column = @Column(name = "tempo_secundario_padrao")),
-        @AttributeOverride(name = "tempoDescanso",  column = @Column(name = "tempo_descanso_padrao"))
+        @AttributeOverride(name = "tempoDescanso",  column = @Column(name = "tempo_descanso_padrao")),
+        @AttributeOverride(name = "tempoDescansoSeries", column = @Column(name = "tempo_descanso_series_padrao"))
     })
     private ExercicioConfig configPadrao;
 

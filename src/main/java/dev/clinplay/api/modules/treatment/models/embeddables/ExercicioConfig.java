@@ -24,6 +24,7 @@ public class ExercicioConfig {
     private Double tempoInativo;    // Tempo em horas que o paciente deve ficar sem realizar o exercício.
     private Double tempoPrincipal;  // Tempo em segundos da ação principal do exercício.
     private Double tempoSecundario; // Tempo em segundos de uma ação secundária.
-    private Double tempoDescanso;   // Tempo em segundos que o paciente deve descansar entre as séries.
+    private Double tempoDescanso;   // Pausa em segundos entre uma repetição e a próxima.
+    private Double tempoDescansoSeries; // Pausa em segundos entre uma série e a próxima. Nulo em registros antigos: o app usa tempoDescanso.
 
 }

@@ -418,6 +418,7 @@ public class TratamentoSocketService {
         if (dto.getTempoPrincipal() != null) config.setTempoPrincipal(dto.getTempoPrincipal());
         if (dto.getTempoSecundario() != null) config.setTempoSecundario(dto.getTempoSecundario());
         if (dto.getTempoDescanso() != null) config.setTempoDescanso(dto.getTempoDescanso());
+        if (dto.getTempoDescansoSeries() != null) config.setTempoDescansoSeries(dto.getTempoDescansoSeries());
         return config;
     }
 
