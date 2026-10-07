@@ -14,6 +14,7 @@ import dev.clinplay.api.modules.accounts.models.enums.Perfil;
 import dev.clinplay.api.modules.accounts.repositories.PacienteRepository;
 import dev.clinplay.api.modules.accounts.repositories.ProfissionalRepository;
 import dev.clinplay.api.modules.accounts.repositories.UsuarioRepository;
+import dev.clinplay.api.modules.clinics.dtos.AtualizarAprovacaoAutomatica;
 import dev.clinplay.api.modules.clinics.dtos.AtualizarPermissoes;
 import dev.clinplay.api.modules.clinics.dtos.CadastroClinica;
 import dev.clinplay.api.modules.clinics.dtos.EditarClinica;
@@ -102,6 +103,29 @@ public class ClinicaService {
         clinica.setCidade(dto.getCidade());
 
         return new ObterClinica(repository.save(clinica));
+
+    }
+
+    @Transactional
+    public void atualizarAprovacaoAutomatica(UUID profissionalId, UUID clinicaId, AtualizarAprovacaoAutomatica dto) {
+
+        Clinica clinica = repository.findById(clinicaId)
+            .orElseThrow(() -> new IllegalArgumentException("Clínica não encontrada"));
+
+        Profissional profissional = profissionalRepository.findById(profissionalId)
+            .orElseThrow(() -> new IllegalArgumentException("Profissional não encontrado"));
+
+        ClinProfissional vinculo = clinProfissionalRepository.findByClinicaAndProfissional(clinica, profissional)
+            .orElseThrow(() -> new IllegalArgumentException("Você não faz parte desta clínica"));
+
+        // Ligar equivale a dar `adminExercicios` a todos os profissionais da
+        // clínica, então exige o mesmo nível de quem edita a clínica.
+        Permissoes p = vinculo.getPermissoes();
+        if (!p.isDono() && !p.isAdminClinica())
+            throw new IllegalArgumentException("Você não tem permissão para alterar a aprovação de exercícios");
+
+        clinica.setAprovacaoAutomaticaExercicios(dto.getAtivo());
+        repository.save(clinica);
 
     }
 

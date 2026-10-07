@@ -147,7 +147,10 @@ public class SolicitacaoService {
         s.setVideoUrl(dto.getVideoUrl());
         s.setConfigPadrao(dto.getConfigPadrao());
 
-        if (vinculo.getPermissoes().isAdminExercicios()) {
+        boolean aprovaDireto = vinculo.getPermissoes().isAdminExercicios()
+            || clinica.isAprovacaoAutomaticaExercicios();
+
+        if (aprovaDireto) {
             Exercicio exercicio = exercicioAlvo != null ? exercicioAlvo : new Exercicio();
             exercicio.setClinica(clinica);
             exercicio.setNome(dto.getNome());
@@ -163,7 +166,7 @@ public class SolicitacaoService {
         }
 
         ObterSolicitacaoExercicio resultado = new ObterSolicitacaoExercicio(solicitacaoExercicioRepository.save(s));
-        if (!vinculo.getPermissoes().isAdminExercicios())
+        if (!aprovaDireto)
             socketService.notificarNovaSolicitacao(clinicaId, TipoSolicitacao.EXERCICIO, resultado);
         return resultado;
 

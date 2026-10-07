@@ -18,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -55,6 +56,16 @@ public class Clinica {
 
     @Column
     private boolean ativo;
+
+    /**
+     * Exercício criado por qualquer profissional entra já aprovado, sem
+     * passar por quem tem `adminExercicios`. O `default false` é obrigatório:
+     * com `ddl-auto=update`, uma coluna NOT NULL sem default não pode ser
+     * adicionada a uma tabela que já tem clínicas.
+     */
+    @Builder.Default
+    @Column(nullable = false, columnDefinition = "boolean not null default false")
+    private boolean aprovacaoAutomaticaExercicios = false;
 
     // ↓ Relacionamentos
 
