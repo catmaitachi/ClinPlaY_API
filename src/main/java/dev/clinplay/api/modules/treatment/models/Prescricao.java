@@ -59,7 +59,8 @@ public class Prescricao {
         @AttributeOverride(name = "tempoInativo",   column = @Column(name = "tempo_inativo_custom")),
         @AttributeOverride(name = "tempoPrincipal", column = @Column(name = "tempo_principal_custom")),
         @AttributeOverride(name = "tempoSecundario",column = @Column(name = "tempo_secundario_custom")),
-        @AttributeOverride(name = "tempoDescanso",  column = @Column(name = "tempo_descanso_custom"))
+        @AttributeOverride(name = "tempoDescanso",  column = @Column(name = "tempo_descanso_custom")),
+        @AttributeOverride(name = "tempoDescansoSeries", column = @Column(name = "tempo_descanso_series_custom"))
     })
     private ExercicioConfig customizacao;
 

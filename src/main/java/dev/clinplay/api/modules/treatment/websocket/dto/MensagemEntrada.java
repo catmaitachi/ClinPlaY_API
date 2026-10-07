@@ -54,6 +54,7 @@ public class MensagemEntrada {
         private Double tempoPrincipal;
         private Double tempoSecundario;
         private Double tempoDescanso;
+        private Double tempoDescansoSeries;
     }
 
 }
