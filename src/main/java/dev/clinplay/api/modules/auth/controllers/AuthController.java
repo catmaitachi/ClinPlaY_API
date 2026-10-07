@@ -3,15 +3,14 @@ package dev.clinplay.api.modules.auth.controllers;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import dev.clinplay.api.modules.accounts.models.embeddables.Origem;
 import dev.clinplay.api.modules.auth.services.SessaoService;
 import dev.clinplay.api.modules.security.jwt.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,7 +43,7 @@ public class AuthController {
     }
 
     @GetMapping("/refresh")
-    public ResponseEntity<?> refresh(@RequestHeader(name = "Authorization", required = false) String authHeader, HttpServletRequest request) {
+    public ResponseEntity<?> refresh(@RequestHeader(name = "Authorization", required = false) String authHeader) {
 
         try {
 
@@ -52,11 +51,12 @@ public class AuthController {
 
             if ( token == null || !jwtService.isRefreshToken(token) || !jwtService.ehValido(token) ) return ResponseEntity.badRequest().body("Token de refresh inválido ou expirado.");
 
-            Map<String, String> tokens = sessaoService.refresh(token, new Origem(request));
+            Map<String, String> tokens = sessaoService.refresh(token);
 
             return ResponseEntity.ok(tokens);
 
-        } catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível realizar o refresh do token: " + e.getMessage()); }
+        } catch (IllegalArgumentException e) { return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage()); }
+        catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível realizar o refresh do token: " + e.getMessage()); }
 
     }
 

@@ -50,12 +50,21 @@ public class SessaoService {
 
     }
 
+    /**
+     * A sessão é achada pelo próprio refresh token, não pela origem: no celular
+     * o IP muda a cada troca de rede, e buscar por IP deslogava o PWA reaberto.
+     */
     @Transactional
-    public Map<String, String> refresh( String token, Origem origem ) throws RuntimeException {
-        
-        Sessao s = repository.findByUsuarioIdAndOrigem( jwtService.extrairSub(token), origem).orElseThrow(() -> new RuntimeException("Sessão não encontrada."));
+    public Map<String, String> refresh( String token ) {
 
-        if ( !encoder.matches(digest(token), s.getRefreshTokenHash()) ) throw new RuntimeException("Refresh token inconsistente.");
+        String hash = digest(token);
+
+        // A sessão em uso costuma ser a mais recente: testá-la primeiro poupa
+        // comparações BCrypt, que são lentas de propósito.
+        Sessao s = repository.findAllByUsuarioIdOrderByUltimoAcessoDesc(jwtService.extrairSub(token)).stream()
+            .filter(sessao -> sessao.getRefreshTokenHash() != null && encoder.matches(hash, sessao.getRefreshTokenHash()))
+            .findFirst()
+            .orElseThrow(() -> new IllegalArgumentException("Sessão não encontrada ou refresh token já usado."));
 
         String access = jwtService.gerarAcessToken(s);
         String refresh = jwtService.gerarRefreshToken(s.getUsuario());

@@ -242,6 +242,9 @@ public class TratamentoSocketService {
         if (msg.getPrescricaoId() == null) throw new IllegalArgumentException("prescricaoId é obrigatório");
         if (msg.getAvaliacao() == null) throw new IllegalArgumentException("avaliacao é obrigatório");
 
+        if (t.getFim() != null && t.getFim().isBefore(LocalDate.now()))
+            throw new IllegalArgumentException("O prazo de acesso a este tratamento terminou");
+
         Prescricao p = prescricaoRepo.findById(msg.getPrescricaoId())
                 .orElseThrow(() -> new IllegalArgumentException("Prescrição não encontrada"));
 
