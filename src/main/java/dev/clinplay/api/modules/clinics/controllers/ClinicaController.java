@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import dev.clinplay.api.modules.clinics.dtos.AtualizarAprovacaoAutomatica;
 import dev.clinplay.api.modules.clinics.dtos.AtualizarPermissoes;
 import dev.clinplay.api.modules.clinics.dtos.CadastroClinica;
 import dev.clinplay.api.modules.clinics.dtos.EditarClinica;
@@ -135,6 +136,23 @@ public class ClinicaController {
 
         } catch (IllegalArgumentException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
         catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível editar a clínica: " + e.getMessage()); }
+
+    }
+
+    @PutMapping("/{clinicaId}/aprovacao-automatica")
+    @PreAuthorize("hasRole('PROFISSIONAL')")
+    public ResponseEntity<?> atualizarAprovacaoAutomatica(
+            @AuthenticationPrincipal UUID id,
+            @PathVariable UUID clinicaId,
+            @Valid @RequestBody AtualizarAprovacaoAutomatica dto) {
+
+        try {
+
+            service.atualizarAprovacaoAutomatica(id, clinicaId, dto);
+            return ResponseEntity.noContent().build();
+
+        } catch (IllegalArgumentException e) { return ResponseEntity.badRequest().body(e.getMessage()); }
+        catch (Exception e) { return ResponseEntity.internalServerError().body("Não foi possível atualizar a aprovação de exercícios: " + e.getMessage()); }
 
     }
 

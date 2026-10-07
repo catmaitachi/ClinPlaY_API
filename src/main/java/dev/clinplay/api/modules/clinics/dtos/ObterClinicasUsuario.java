@@ -23,6 +23,7 @@ public class ObterClinicasUsuario {
     private String uf;
     private String cidade;
     private Permissoes permissoes;
+    private Boolean aprovacaoAutomaticaExercicios;
     private List<ObterTratamento> tratamentos;
     private String planoNome;
     private String planoStatus;
@@ -52,6 +53,7 @@ public class ObterClinicasUsuario {
         this.uf = cp.getClinica().getUf();
         this.cidade = cp.getClinica().getCidade();
         this.permissoes = cp.getPermissoes();
+        this.aprovacaoAutomaticaExercicios = cp.getClinica().isAprovacaoAutomaticaExercicios();
         this.tratamentos = cp.getTratamentos().stream().map(ObterTratamento::new).toList();
         Assinatura assinatura = cp.getClinica().getAssinatura();
         if (assinatura != null) {
